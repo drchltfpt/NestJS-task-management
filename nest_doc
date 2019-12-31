@@ -1,0 +1,129 @@
+---- NestJs doc ----
+
+* Nest JS Controllers
+ - Responsible for handling incoming requests and returning responses to the client
+ - Bound to a specific path (ex: "/task" for the task resource)
+ - Contain handlers, which hanlde endpoints and request methods (GET, POST, DELETE, etc)
+ - Can take advantage of dependency injection to consume providers within the same module
+ 
+* Nest JS Providers
+ - Can be injected into constructors if decorated as an @Injectable, via dependency injection
+ - Can be a plain value, a class, sync/async factory etc
+ - Providers must be provided to a module for them to be usable
+ - Can be exported from a module - and then be availabel to other modules that import it
+ 
+ * What is a Service?
+  - Defined as providers. Not all providers are services
+  - Common concept within software development and are not exclusive NestJS, Javascript or back-end development
+  - Singleton when wrapped with @Injectable() and provided to a module. That means, the same instance will be shared across the application - acting as a single source of truth
+ - The main source of business logic. For example, a service will be called from a controller to valudate data, create an item in the database and return a response
+
+* Dependency Injection in NestJS
+ - Any component within the NestJS ecosystem can inject a provider that is decorated with the @Injectable
+ - We define the dependencies in the constructor of the class. NestJS will take care of the injection for us, and it will then be available as a class property
+ 
+* DTO (Data transfer object) in NestJS
+ - Common concept in software development that is not sepecific to NestJS
+ - Result in more bulletproof code, as it can be used as a TypeScript type
+ - Do not have any behavior except for storage, retrieval, serialization and deserialization of its own data
+ - Result in increased performance (although negligible in small applications)
+ - Can be useful for data validation
+ - A DTO is NOT a model definition. It defines the shape of data for a specific case, for example - creating a task
+ 
+ * Classes VS Interfaces for DTOs
+ - Data Transfer Objects (DTOs) can be defined as classes or interfaces
+ - The recommended approach is to use classes, also clearly documented in the NestJS documentation
+ - The reason is that interfaces are a part of TypeScript and therefore are not preserved post-compilation
+ - Classes allow us to do more, and since they are a part of Javascript, they will be preserved post-compilation 
+ - NestJS cannot refer to interfaces in run-time, but can refer to classes
+ 
+ * Important note!
+ - Data Transfer Objects are NOT mandatory ~ still develop applications without using DTOs
+ - However, the value they add makes it worthwhile to use them when applicable
+ - Applying the DTO pattern as soon as possible will make it easy for you to maintain and refactor your code
+ 
+
+* NestJS Pipes
+ - Pipes operate on the arguments to be processed by the route handler, just before the handler is called
+ - Pipes can perform data transformation or data validation
+ - Pipes can return data - either original or modified - which will be passed on to the route handler
+ - Pipes can throw exceptions. Exceptions thrown will be handled by NestJS and parsed into an error response
+ - Pipes can be asynchronous
+ 
+ * Default Pipes in NestJS
+ - NestJS ships with useful pipes within the @nestjs/common module
+  -- ValidationPipe
+   + Validates the compatibility of an entire object against a class (goes well with DTOs, or Data Transfer Objects). If any property cannot be mapped properly (for example, mismatching type) validation will fail.
+   + A very common use case, therefore having a built-in validation pipe is extremely useful
+  
+  -- ParseIntPipe
+   + By default, arguments are of type String. This pipe validates that an argument is a number. If success, the argument is transformed into a Number and passed on to the handler
+   
+  -- Custom Pipe Implementation
+   + Pipes are classes annotated with the @Injectable() decorator
+   + Pipes must implement the PipeTransform generic interface. Therefore, every pipe must have a transform() method. This method will be called by NestJS to process the arguments
+   + The transform() method accepts two parameters:
+    + value: the value of the processed argument
+	+ metadata (optional): an object containing metadata about the argument
+   + Whatever is returned from the transform() method will be passed on to the route handler. Exceptions will be sent back to the client
+   + Pipes can be consumed in different ways
+
+ - Parameter-level pipes are defined at the parameter level. Only the specific parameter for which the pipe has been sepecified will be processed
+ - Global pipes are defined at the application level and will be applied to any incoming request
+ 
+ 
+* JSON Web Tokens (JWT)
+ - What are JSON Web Tokens?
+  + Open-source industry standard (RFC-7519)
+  + Usable for Authorization or secure exchange of information between parties
+  + Verify that the sender is who it/he/she claims to be
+  + Signed by the issuer, using  a secret or keypair (HMAC algorithm, RSA or ECDSA)
+  
+ - Structure
+  + Header contains metadata about the token (type, hashing algorithm etc)
+  + Payload contains claims (statements about an entity - for example, a user) and additional data
+  + Signature is the result of the encoded header, the encoded payload, signed against a secret
+   
+* Logging
+ - Types of Logs
+  + Log - General purpose logging of important information
+  + Warning - Unhandled issue that is NOT fatal or destructive
+  + Error - Unhandled issue that is fatal or destructive
+  + Debug - Useful informatin that can help us debug the logic in case of an error/ warning. Intended for developers
+  + Verbose - Information providing insights about the behavior of the application. Intended for operators (for example,
+  support). Usually "too much information"
+  
+* Configuration
+ - Central way of defining values that are loaded upon starting the application (should not be changed during runtime)
+ - Configuration per environment - development, staging, production, etctera.
+ - Configuration can be defined in the code base. Useful if you work with multiple developers via version control. 
+ Your configuration should always work for with the code it ships with
+ - Can be defined in may ways (JSON, YAML, XML, Environment Variables etc), using custom solutions or open-source libraries
+ 
+ * Codebase VS Environment Variables
+  - You could define configuration in your codebase. For example, in a config folder
+  - You could also support configuring values via environment variables (which are provided when running the application)
+  
+ 
+ 
+ -- Setup and create a new project NestJS --
+$ npm i -g @nestjs/cli
+$ nest new project-name
+ 
+ -- implement pipe validation
+  $ npm install class-validator class-transformer --save
+ 
+ -- implement typeorm nestjs/cli
+  $ npm install --save @nestjs/typeorm typeorm pg
+  
+ -- implement authentication
+  $ nest g module auth
+ 
+* To create a new module: nest g module {module name} 
+ ex: nest g module tasks
+ 
+* To create a new controller: nest g controller {controller name} --no-spec (no unit test right now)
+ ex: nest g controller tasks --no-spec
+ 
+* To create a new service: nest g service {service name} --no-spec (no unit test right now)
+ ex: nest g service tasks --no-spec
